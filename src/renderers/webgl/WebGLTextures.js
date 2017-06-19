@@ -61,7 +61,7 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, paramT
 			var context = POTCanvas.getContext( '2d' );
 			context.drawImage( image, 0, 0, POTCanvas.width, POTCanvas.height );
 
-			console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + POTCanvas.width + 'x' + POTCanvas.height, image );
+			//console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + POTCanvas.width + 'x' + POTCanvas.height, image );
 
 			return POTCanvas;
 
