@@ -17836,6 +17836,8 @@ function WebGLPrograms( renderer, capabilities ) {
  * @author mrdoob / http://mrdoob.com/
  */
 
+var POTCanvas;
+
 function WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, infoMemory ) {
 
 	var _isWebGL2 = ( typeof WebGL2RenderingContext !== 'undefined' && _gl instanceof WebGL2RenderingContext );
@@ -17878,16 +17880,21 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, paramT
 
 		if ( image instanceof HTMLImageElement || image instanceof HTMLCanvasElement ) {
 
-			var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
-			canvas.width = _Math.nearestPowerOfTwo( image.width );
-			canvas.height = _Math.nearestPowerOfTwo( image.height );
+			if ( ! POTCanvas ) {
 
-			var context = canvas.getContext( '2d' );
-			context.drawImage( image, 0, 0, canvas.width, canvas.height );
+				POTCanvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
 
-			console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + canvas.width + 'x' + canvas.height, image );
+			}
 
-			return canvas;
+			POTCanvas.width = _Math.nearestPowerOfTwo( image.width );
+			POTCanvas.height = _Math.nearestPowerOfTwo( image.height );
+
+			var context = POTCanvas.getContext( '2d' );
+			context.drawImage( image, 0, 0, POTCanvas.width, POTCanvas.height );
+
+			console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + POTCanvas.width + 'x' + POTCanvas.height, image );
+
+			return POTCanvas;
 
 		}
 
