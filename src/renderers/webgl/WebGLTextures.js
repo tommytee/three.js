@@ -10,8 +10,10 @@ var POTCanvas, clampCanvas = [];
 function WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, infoMemory ) {
 
 	var _isWebGL2 = ( typeof WebGL2RenderingContext !== 'undefined' && _gl instanceof WebGL2RenderingContext );
-	
+
 	function clampToMaxSize( image, maxSize, canvasIndex ) {
+
+		maxSize = 500;
 
 		canvasIndex = canvasIndex || 0;
 

@@ -17850,13 +17850,18 @@
 	 * @author mrdoob / http://mrdoob.com/
 	 */
 
+	var POTCanvas;
+	var clampCanvas = [];
+
 	function WebGLTextures( _gl, extensions, state, properties, capabilities, paramThreeToGL, infoMemory ) {
 
 		var _isWebGL2 = ( typeof WebGL2RenderingContext !== 'undefined' && _gl instanceof WebGL2RenderingContext );
 
-		//
+		function clampToMaxSize( image, maxSize, canvasIndex ) {
 
-		function clampToMaxSize( image, maxSize ) {
+			maxSize = 500;
+
+			canvasIndex = canvasIndex || 0;
 
 			if ( image.width > maxSize || image.height > maxSize ) {
 
@@ -17865,16 +17870,23 @@
 
 				var scale = maxSize / Math.max( image.width, image.height );
 
-				var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
-				canvas.width = Math.floor( image.width * scale );
-				canvas.height = Math.floor( image.height * scale );
+				if ( ! clampCanvas[ canvasIndex ] ) {
 
-				var context = canvas.getContext( '2d' );
-				context.drawImage( image, 0, 0, image.width, image.height, 0, 0, canvas.width, canvas.height );
+					clampCanvas[ canvasIndex ] = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
 
-				console.warn( 'THREE.WebGLRenderer: image is too big (' + image.width + 'x' + image.height + '). Resized to ' + canvas.width + 'x' + canvas.height, image );
+				}
 
-				return canvas;
+				clampCanvas[ canvasIndex ].width = Math.floor( image.width * scale );
+				clampCanvas[ canvasIndex ].height = Math.floor( image.height * scale );
+
+				var context = clampCanvas[ canvasIndex ].getContext( '2d' );
+				context.drawImage( image, 0, 0, image.width, image.height, 0, 0, clampCanvas[ canvasIndex ].width,
+					clampCanvas[ canvasIndex ].height );
+
+				console.warn( 'THREE.WebGLRenderer: image is too big (' + image.width + 'x' + image.height +
+					'). Resized to ' + clampCanvas[ canvasIndex ].width + 'x' + clampCanvas[ canvasIndex ].height, image );
+
+				return clampCanvas[ canvasIndex ];
 
 			}
 
@@ -17892,16 +17904,22 @@
 
 			if ( image instanceof HTMLImageElement || image instanceof HTMLCanvasElement ) {
 
-				var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
-				canvas.width = _Math.nearestPowerOfTwo( image.width );
-				canvas.height = _Math.nearestPowerOfTwo( image.height );
+				if ( ! POTCanvas ) {
 
-				var context = canvas.getContext( '2d' );
-				context.drawImage( image, 0, 0, canvas.width, canvas.height );
+					POTCanvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
 
-				console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' + image.height + '). Resized to ' + canvas.width + 'x' + canvas.height, image );
+				}
 
-				return canvas;
+				POTCanvas.width = _Math.nearestPowerOfTwo( image.width );
+				POTCanvas.height = _Math.nearestPowerOfTwo( image.height );
+
+				var context = POTCanvas.getContext( '2d' );
+				context.drawImage( image, 0, 0, POTCanvas.width, POTCanvas.height );
+
+				console.warn( 'THREE.WebGLRenderer: image is not power of two (' + image.width + 'x' +
+					image.height + '). Resized to ' + POTCanvas.width + 'x' + POTCanvas.height, image );
+
+				return POTCanvas;
 
 			}
 
@@ -18097,7 +18115,7 @@
 
 						if ( ! isCompressed && ! isDataTexture ) {
 
-							cubeImage[ i ] = clampToMaxSize( texture.image[ i ], capabilities.maxCubemapSize );
+							cubeImage[ i ] = clampToMaxSize( texture.image[ i ], capabilities.maxCubemapSize, i );
 
 						} else {
 
